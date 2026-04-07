@@ -27,6 +27,22 @@ afterEach(() => {
 })
 
 describe('filterSettingsEnvForExplicitProvider', () => {
+  test('does not treat plain provider flags as an explicit CLI override', () => {
+    process.env.CLAUDE_CODE_USE_GITHUB = '1'
+
+    expect(
+      filterSettingsEnvForExplicitProvider({
+        CLAUDE_CODE_USE_OPENAI: '1',
+        OPENAI_MODEL: 'gpt-4o',
+        OTHER: 'keep-me',
+      }),
+    ).toEqual({
+      CLAUDE_CODE_USE_OPENAI: '1',
+      OPENAI_MODEL: 'gpt-4o',
+      OTHER: 'keep-me',
+    })
+  })
+
   test('strips settings-sourced provider flags when CLI provider is explicit', () => {
     process.env.CLAUDE_CODE_EXPLICIT_PROVIDER = 'openai'
 
@@ -67,6 +83,19 @@ describe('filterSettingsEnvForExplicitProvider', () => {
     expect(
       filterSettingsEnvForExplicitProvider({
         OPENAI_MODEL: 'gpt-4o',
+        OTHER: 'keep-me',
+      }),
+    ).toEqual({ OTHER: 'keep-me' })
+  })
+
+  test('preserves anthropic startup intent by stripping stale GitHub/OpenAI settings', () => {
+    process.env.CLAUDE_CODE_EXPLICIT_PROVIDER = 'anthropic'
+
+    expect(
+      filterSettingsEnvForExplicitProvider({
+        CLAUDE_CODE_USE_GITHUB: '1',
+        CLAUDE_CODE_USE_OPENAI: '1',
+        OPENAI_MODEL: 'github:copilot',
         OTHER: 'keep-me',
       }),
     ).toEqual({ OTHER: 'keep-me' })

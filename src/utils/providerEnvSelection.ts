@@ -1,5 +1,3 @@
-import { isEnvTruthy } from './envUtils.js'
-
 export const EXPLICIT_PROVIDER_ENV_VAR = 'CLAUDE_CODE_EXPLICIT_PROVIDER'
 
 const PROVIDER_FLAG_KEYS = [
@@ -20,17 +18,7 @@ export function clearProviderSelectionFlags(
 }
 
 function getExplicitProvider(processEnv: NodeJS.ProcessEnv): string | undefined {
-  const explicitProvider = processEnv[EXPLICIT_PROVIDER_ENV_VAR]?.trim()
-  if (explicitProvider) return explicitProvider
-
-  if (isEnvTruthy(processEnv.CLAUDE_CODE_USE_GEMINI)) return 'gemini'
-  if (isEnvTruthy(processEnv.CLAUDE_CODE_USE_GITHUB)) return 'github'
-  if (isEnvTruthy(processEnv.CLAUDE_CODE_USE_OPENAI)) return 'openai'
-  if (isEnvTruthy(processEnv.CLAUDE_CODE_USE_BEDROCK)) return 'bedrock'
-  if (isEnvTruthy(processEnv.CLAUDE_CODE_USE_VERTEX)) return 'vertex'
-  if (isEnvTruthy(processEnv.CLAUDE_CODE_USE_FOUNDRY)) return 'foundry'
-
-  return undefined
+  return processEnv[EXPLICIT_PROVIDER_ENV_VAR]?.trim() || undefined
 }
 
 function isGithubModel(model: string | undefined): boolean {
